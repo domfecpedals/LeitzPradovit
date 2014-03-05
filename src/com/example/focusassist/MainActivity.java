@@ -1,8 +1,12 @@
 package com.example.focusassist;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.UUID;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -17,6 +21,9 @@ import org.opencv.imgproc.Imgproc;
 
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
@@ -46,7 +53,16 @@ private SubMenu mFocusMenu;
 private SubMenu mFlashMenu;
 private Mat mIntermediateMat;
 private double previousValue;
+
+
 Button Connect;
+private BluetoothAdapter mBluetoothAdapter = null;
+private BluetoothSocket btSocket = null;
+private OutputStream outStream = null;
+private static String address = "98:D3:31:B0:9C:87";
+private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+private InputStream inStream = null;
+private boolean btonoff=false;
 
 private Mat mGrayMat;
 
@@ -85,14 +101,73 @@ public void onCreate(Bundle savedInstanceState) {
     
     Connect = (Button) findViewById(R.id.connect);
     Connect.setOnClickListener(new ConnectOnClickListener());
+    
+    
+    CheckBt();
+    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
    
 
+}
+
+private void CheckBt() {
+	mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+	if (!mBluetoothAdapter.isEnabled()) {
+		Toast.makeText(getApplicationContext(), "Bluetooth Disabled !",
+				Toast.LENGTH_SHORT).show();
+	}
+
+	if (mBluetoothAdapter == null) {
+		Toast.makeText(getApplicationContext(),
+				"Bluetooth null !", Toast.LENGTH_SHORT)
+				.show();
+	}
+}
+public void Connect() {
+	Log.d(TAG, address);
+	BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+	Log.d(TAG, "Connecting to ... " + device);
+	mBluetoothAdapter.cancelDiscovery();
+	try {
+		btSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+		btSocket.connect();
+		btonoff=true;
+		Log.d(TAG, "Connection made.");
+	} catch (IOException e) {
+		try {
+			btSocket.close();
+		} catch (IOException e2) {
+			Log.d(TAG, "Unable to end the connection");
+		}
+		Log.d(TAG, "Socket creation failed");
+	}
+	
+//	beginListenForData();
+}
+
+
+private void writeData(String data) {
+	try {
+		outStream = btSocket.getOutputStream();
+	} catch (IOException e) {
+		Log.d(TAG, "Bug BEFORE Sending stuff", e);
+	}
+
+	String message = data;
+	byte[] msgBuffer = message.getBytes();
+
+	try {
+		outStream.write(msgBuffer);
+	} catch (IOException e) {
+		Log.d(TAG, "Bug while sending stuff", e);
+	}
 }
 
 
 public class ConnectOnClickListener implements OnClickListener {
 	public void onClick(View v) {
 		
+		Connect();
 		Log.i(TAG, "Connect Button pressed");
 		
 	}
@@ -282,6 +357,8 @@ public boolean onOptionsItemSelected(MenuItem item) {
         String caption = Integer.valueOf((int) resolution.width).toString() + "x" + Integer.valueOf((int) resolution.height).toString();
         Toast.makeText(this, caption, Toast.LENGTH_SHORT).show();
     } 
+   
+   
     else if (item.getGroupId()==2){
 
        int focusType = item.getItemId();
@@ -308,7 +385,7 @@ Thread Motor = new Thread()
     public void run() {
         try {
             while(true) {
-                sleep(500);
+                sleep(100);
                 Log.i(TAG,"this is a multithread");
                 Size sizeRgba = mIntermediateMat.size();
                 int rows = (int) sizeRgba.height;
@@ -327,21 +404,29 @@ Thread Motor = new Thread()
               
               Log.i("the total value is", String.valueOf(diff));
               
-              if (diff>50) // Test if this is too sensitive, if so, add a threshold value to the difference
+              String command;
+              
+              if (diff>30) // Test if this is too sensitive, if so, add a threshold value to the difference
               {
+            	  command="1";
               	Log.i("Motor direction", "Left");
               }
-              else if(diff<-50)
+              else if(diff<-30)
               {
+            	  command="2";
               	Log.i("Motor direction", "Right");
               }
               else
               {
+            	  command="3";
             	  Log.i("Motor direction","Stop");
               }
               
               previousValue=tol;  //Update previous value
-                
+              
+              if (btonoff==true){
+              writeData(command);
+              }
 
             }
         } catch (InterruptedException e) {
