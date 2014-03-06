@@ -2,21 +2,38 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:opencv="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
 
+    <com.example.focusassist.JavaCamResView
+        android:id="@+id/test_view"
+        android:layout_width="480dp"
+        android:layout_height="fill_parent"/>
 
+    <LinearLayout
+           android:layout_width="match_parent"
+           android:layout_height="match_parent"
+           android:orientation="vertical"  >
 
-        <com.example.focusassist.JavaCamResView
-            android:id="@+id/test_view"
-            android:layout_width="480dp"
-            android:layout_height="wrap_content" />
-                 <Button
-        android:id="@+id/connect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="@string/connect" />
+        <Button
+            android:id="@+id/connect"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="@string/connect" />
 
-  
+        <Button
+            android:id="@+id/zoomin"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="@string/zoomin" />
+        <Button
+            android:id="@+id/zoomout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="@string/zoomout" />
+    </LinearLayout>
 
 </LinearLayout>

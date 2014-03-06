@@ -47,24 +47,27 @@ private List<Camera.Size> mResolutionList;
 private MenuItem[] mResolutionMenuItems;
 private MenuItem[] mFocusListItems;
 private MenuItem[] mFlashListItems;
-
 private SubMenu mResolutionMenu;
 private SubMenu mFocusMenu;
 private SubMenu mFlashMenu;
+
+////////////////
 private Mat mIntermediateMat;
 private double previousValue;
+private Mat mGrayMat;
 
 
+////////////////
 Button Connect;
 private BluetoothAdapter mBluetoothAdapter = null;
 private BluetoothSocket btSocket = null;
 private OutputStream outStream = null;
 private static String address = "98:D3:31:B0:9C:87";
 private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-private InputStream inStream = null;
+//private InputStream inStream = null;
 private boolean btonoff=false;
 
-private Mat mGrayMat;
+
 
 private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
     @Override
@@ -185,7 +188,7 @@ public void onPause()
 public void onResume()
 {
     super.onResume();
-    OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5, this, mLoaderCallback);
+    OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_8, this, mLoaderCallback);
 
 
 }
@@ -199,14 +202,8 @@ public void onDestroy() {
 public void onCameraViewStarted(int width, int height) {        
 
     mGrayMat = new Mat(height, width, CvType.CV_8UC1);
-    
     mIntermediateMat = new Mat();
-    
     previousValue=0;
-    
-    boolean bo=mIntermediateMat.empty();
-    
-    Log.i("", "halkshflakjflajfsl" + bo);
     Motor.start();
 
 }
@@ -222,15 +219,14 @@ public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
       Size sizeRgba = mGrayMat.size();
 
       Mat rgbaInnerWindow;
-
+    
+      // Later will define these param in global, so it can be accessed and modified by the view 
     int rows = (int) sizeRgba.height;
     int cols = (int) sizeRgba.width;
     int left = cols / 4;
     int top = rows / 8;
     int width = cols * 1 / 2;
     int height = rows * 3 / 4;
-    
-    
     
     // Crop image 
     Mat grayInnerWindow = gray.submat(top, top + height, left, left + width);
@@ -241,36 +237,8 @@ public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
     Core.convertScaleAbs(InterMat, InterMat, 10, 0);
     // Swap cropped area
     Imgproc.cvtColor(InterMat, rgbaInnerWindow, Imgproc.COLOR_GRAY2BGRA, 4);
-    
-    
-    
-//    // Compute sum of all gradient values in area
-//    byte buff[] = new byte[cols*rows];
-//    InterMat.get(0, 0, buff);
-//    // tol is the sum of gradient value for current frame, it will be reset every time before store in
-//    double tol=0;
-//    for(int i = 0; i < cols*rows; i++)
-//    {
-//       tol=tol+buff[i] ;
-//    }
-//    Log.i("the total value is", String.valueOf(tol));
-//    
-//    
-//    if (tol>previousValue) // Test if this is too sensitive, if so, add a threshold value to the difference
-//    {
-//    	Log.i("Motor direction", "Left");
-//    }
-//    else
-//    {
-//    	Log.i("Motor direction", "Right");
-//    }
- 
-//     need a double to store sum of previous frame, so they can be compared
-//    previousValue=tol;
-    
     grayInnerWindow.release();
     rgbaInnerWindow.release();
-    
     mIntermediateMat=InterMat;
     
     return mGrayMat;
