@@ -7,5 +7,9 @@
     <string name="connect">Connect</string>
     <string name="zoomin">Zoom In</string>
     <string name="zoomout">Zoom Out</string>
+    <string name="up">Up</string>
+    <string name="down">Down</string>
+    <string name="left">Left</string>
+    <string name="right">Right</string>
 
 </resources>

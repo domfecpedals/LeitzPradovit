@@ -8,12 +8,12 @@
     <com.example.focusassist.JavaCamResView
         android:id="@+id/test_view"
         android:layout_width="480dp"
-        android:layout_height="fill_parent"/>
+        android:layout_height="fill_parent" />
 
     <LinearLayout
-           android:layout_width="match_parent"
-           android:layout_height="match_parent"
-           android:orientation="vertical"  >
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
 
         <Button
             android:id="@+id/connect"
@@ -28,12 +28,57 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:text="@string/zoomin" />
+
         <Button
             android:id="@+id/zoomout"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:text="@string/zoomout" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/up"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:text="@string/up" />
+
+            <Button
+                android:id="@+id/down"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:text="@string/down" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/left"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:text="@string/left" />
+
+            <Button
+                android:id="@+id/right"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:text="@string/right" />
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

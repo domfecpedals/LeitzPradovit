@@ -50,12 +50,16 @@ containing a value of this type.
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_settings=0x7f040007;
+        public static final int action_settings=0x7f04000b;
         public static final int any=0x7f040000;
         public static final int back=0x7f040001;
         public static final int connect=0x7f040004;
+        public static final int down=0x7f040008;
         public static final int front=0x7f040002;
+        public static final int left=0x7f040009;
+        public static final int right=0x7f04000a;
         public static final int test_view=0x7f040003;
+        public static final int up=0x7f040007;
         public static final int zoomin=0x7f040005;
         public static final int zoomout=0x7f040006;
     }
@@ -69,7 +73,11 @@ containing a value of this type.
         public static final int action_settings=0x7f060001;
         public static final int app_name=0x7f060000;
         public static final int connect=0x7f060003;
+        public static final int down=0x7f060007;
         public static final int hello_world=0x7f060002;
+        public static final int left=0x7f060008;
+        public static final int right=0x7f060009;
+        public static final int up=0x7f060006;
         public static final int zoomin=0x7f060004;
         public static final int zoomout=0x7f060005;
     }
