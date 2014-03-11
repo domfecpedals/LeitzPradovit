@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="horizontal" >
 
-    <com.example.focusassist.JavaCamResView
+    <com.domfec.leitzpradovit.JavaCamResView
         android:id="@+id/test_view"
         android:layout_width="480dp"
         android:layout_height="fill_parent" />
