@@ -410,7 +410,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		public void run() {
 			try {
 				while (true) {
-					sleep(100);
+					
 					Size sizeRgba = mIntermediateMat.size();
 					int rows = (int) sizeRgba.height;
 					int cols = (int) sizeRgba.width;
@@ -429,13 +429,14 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 //					Log.i("the total value is", String.valueOf(diff));
 
 					String command;
+					
 
-					if (diff > 30) // Test if this is too sensitive, if so, add
+					if (diff > 20) // Test if this is too sensitive, if so, add
 									// a threshold value to the difference
 					{
 						command = "1";
 //						Log.i("Motor direction", "Left");
-					} else if (diff < -30) {
+					} else if (diff < -20) {
 						command = "2";
 //						Log.i("Motor direction", "Right");
 					} else {
@@ -448,6 +449,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 					if (btonoff == true) {
 						writeData(command);
 					}
+					sleep(200);
 
 				}
 			} catch (InterruptedException e) {
