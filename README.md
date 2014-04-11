@@ -1,4 +1,4 @@
-# Leitz Pradovit Auto Focus Module (an <h1> tag)
+# Leitz Pradovit Auto Focus Module <h1>
 =============
 
 This project is aim to add auto focus function to the vintage Leitz Pradovit projector
