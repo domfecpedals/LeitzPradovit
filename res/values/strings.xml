@@ -11,5 +11,6 @@
     <string name="down">Down</string>
     <string name="left">Left</string>
     <string name="right">Right</string>
+    <string name="focus">Focus</string>
 
 </resources>

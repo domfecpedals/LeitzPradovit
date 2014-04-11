@@ -52,7 +52,11 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	// //////////////
 	private Mat mIntermediateMat;
 	private double previousValue;
+	private double currentValue;
 	private Mat mGrayMat;
+	private boolean isFocused=true;
+	private boolean isInitiated=false;
+	private final Object signal = new Object();
 	
 	
 	////////////////
@@ -122,8 +126,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		Connect.setOnClickListener(new DownOnClickListener());
 		Connect = (Button) findViewById(R.id.left);
 		Connect.setOnClickListener(new LeftOnClickListener());
-		Connect = (Button) findViewById(R.id.right);
-		Connect.setOnClickListener(new RightOnClickListener());
+		Connect = (Button) findViewById(R.id.focus);
+		Connect.setOnClickListener(new FocusOnClickListener());
 		
 		
 		
@@ -227,9 +231,20 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 			mLeft=mLeft+1;
 		}
 	}
-	public class RightOnClickListener implements OnClickListener{
+	
+    public void setUnpaused() {
+        isFocused = false;
+        synchronized(signal) {
+       	 signal.notify();
+       	 }
+    }
+	
+	public class FocusOnClickListener implements OnClickListener{
 		public void onClick(View v){
-			mLeft=mLeft-1;
+			//mLeft=mLeft-1;
+		    isFocused=false;
+		    setUnpaused();
+
 		}
 	}
 	@Override
@@ -304,7 +319,21 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		grayInnerWindow.release();
 		rgbaInnerWindow.release();
 		mIntermediateMat = InterMat;
-
+		
+		Size InnersizeRgba = mIntermediateMat.size();
+		int Innerrows = (int) InnersizeRgba.height;
+		int Innercols = (int) InnersizeRgba.width;
+		byte buff[] = new byte[Innercols * Innerrows];
+		mIntermediateMat.get(0, 0, buff);
+//		// tol is the sum of gradient value for current frame, it
+//		// will be reset every time before store in
+		double tol = 0;
+		for (int i = 0; i < Innercols * Innerrows; i++) {
+			tol = tol + buff[i];
+		}
+		
+		currentValue=tol;
+		
 		return mGrayMat;
 	}
 
@@ -408,25 +437,38 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	Thread Motor = new Thread() {
 		@Override
 		public void run() {
+			
+			//boolean isFocused=false;
+			
 			try {
 				while (true) {
 					
-					Size sizeRgba = mIntermediateMat.size();
-					int rows = (int) sizeRgba.height;
-					int cols = (int) sizeRgba.width;
-					byte buff[] = new byte[cols * rows];
-					mIntermediateMat.get(0, 0, buff);
-					// tol is the sum of gradient value for current frame, it
-					// will be reset every time before store in
-					double tol = 0;
-					for (int i = 0; i < cols * rows; i++) {
-						tol = tol + buff[i];
+//	                if (isFocused) {
+//	                	continue;
+//	                }
+//					
+			         while(isFocused) { // pause point 1
+			             synchronized(signal){
+			             signal.wait();
+			             }
+			          }
+			         
+			         
+					// Check if just start, if so, give motor initial speed and set flag true
+					if (!isInitiated){
+						if (btonoff == true) {
+							writeData("1");
+						}
+						isInitiated=true;
 					}
-					// Log.i("the total value is", String.valueOf(tol));
+			        // Record current value as past value
+					previousValue=currentValue;
+					// Keep motor running
+					sleep(500);
+                    // Read current and compare with past value
+					double diff = (currentValue - previousValue) / 1000;
 
-					double diff = (tol - previousValue) / 1000;
-
-//					Log.i("the total value is", String.valueOf(diff));
+					Log.i("the total value is", String.valueOf(diff));
 
 					String command;
 					
@@ -435,26 +477,31 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 									// a threshold value to the difference
 					{
 						command = "1";
-//						Log.i("Motor direction", "Left");
+						isFocused=false;
+						Log.i("Motor direction", "Left");
 					} else if (diff < -20) {
 						command = "2";
-//						Log.i("Motor direction", "Right");
+						isFocused=false;
+						Log.i("Motor direction", "Right");
 					} else {
 						command = "3";
-//						Log.i("Motor direction", "Stop");
+						isFocused=true;
+						isInitiated=false;
+						Log.i("Motor direction", "Stop");
 					}
-
-					previousValue = tol; // Update previous value
 
 					if (btonoff == true) {
 						writeData(command);
 					}
-					sleep(200);
+				
 
 				}
+			//	}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+
+
 	};
 }

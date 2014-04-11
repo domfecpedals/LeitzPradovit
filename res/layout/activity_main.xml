@@ -72,12 +72,12 @@
                 android:text="@string/left" />
 
             <Button
-                android:id="@+id/right"
+                android:id="@+id/focus"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_weight="1"
-                android:text="@string/right" />
+                android:text="@string/focus" />
         </LinearLayout>
     </LinearLayout>
 

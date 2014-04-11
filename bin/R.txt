@@ -8,9 +8,9 @@ int id any 0x7f040000
 int id back 0x7f040001
 int id connect 0x7f040004
 int id down 0x7f040008
+int id focus 0x7f04000a
 int id front 0x7f040002
 int id left 0x7f040009
-int id right 0x7f04000a
 int id test_view 0x7f040003
 int id up 0x7f040007
 int id zoomin 0x7f040005
@@ -21,6 +21,7 @@ int string action_settings 0x7f060001
 int string app_name 0x7f060000
 int string connect 0x7f060003
 int string down 0x7f060007
+int string focus 0x7f06000a
 int string hello_world 0x7f060002
 int string left 0x7f060008
 int string right 0x7f060009
