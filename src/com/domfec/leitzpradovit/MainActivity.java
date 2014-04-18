@@ -44,20 +44,22 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 
 	private MenuItem[] mResolutionMenuItems;
 	private MenuItem[] mFocusListItems;
-	private MenuItem[] mFlashListItems;
+//	private MenuItem[] mFlashListItems;
 	private SubMenu mResolutionMenu;
 	private SubMenu mFocusMenu;
-	private SubMenu mFlashMenu;
+//	private SubMenu mFlashMenu;
 
 	// //////////////
 	private Mat mIntermediateMat;
 	private double previousValue;
 	private double currentValue;
+	private double maxima;
+	private int interval=500;
 	private Mat mGrayMat;
 	private boolean isFocused=true;
 	private boolean isInitiated=false;
 	private final Object signal = new Object();
-	
+
 	
 	////////////////
 	private int mRatioX;
@@ -87,7 +89,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 			case LoaderCallbackInterface.SUCCESS: {
 				Log.i(TAG, "OpenCV loaded successfully");
 				mOpenCvCameraView.enableView();
-
 			}
 				break;
 			default: {
@@ -111,9 +112,10 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		setContentView(R.layout.activity_main);
 
 		// Link customized camera
-		mOpenCvCameraView = (JavaCamResView) findViewById(R.id.test_view);
+		mOpenCvCameraView = (JavaCamResView) findViewById(R.id.test_view);		
 		mOpenCvCameraView.setCvCameraViewListener(this);
 
+		
 		Connect = (Button) findViewById(R.id.connect);
 		Connect.setOnClickListener(new ConnectOnClickListener());
 		Connect = (Button) findViewById(R.id.zoomin);
@@ -281,6 +283,10 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		mRatioY=8;
 		mTop=8;
 		mLeft=8;
+		
+
+
+
 		Motor.start();
 
 	}
@@ -332,7 +338,11 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 			tol = tol + buff[i];
 		}
 		
-		currentValue=tol;
+		currentValue=tol/ 1000;
+		
+		if (currentValue>maxima){
+			maxima=currentValue;
+		}
 		
 		return mGrayMat;
 	}
@@ -364,27 +374,24 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 			idx++;
 		}
 
-		List<String> mFlashList = new LinkedList<String>();
-		idx = 0;
+//		List<String> mFlashList = new LinkedList<String>();
+//		idx = 0;
+//		mFlashMenu = menu.addSubMenu("Flash");
+//		mFlashList.add("Auto");
+//		mFlashList.add("Off");
+//		mFlashList.add("On");
+//		mFlashList.add("Red-Eye");
+//		mFlashList.add("Torch");
+//		mFlashListItems = new MenuItem[mFlashList.size()];
+//		ListIterator<String> FlashItr = mFlashList.listIterator();
+//		while (FlashItr.hasNext()) {
+//			// add the element to the mDetectorMenu submenu
+//			String element = FlashItr.next();
+//			mFlashListItems[idx] = mFlashMenu.add(3, idx, Menu.NONE, element);
+//			idx++;
+//		}
 
-		mFlashMenu = menu.addSubMenu("Flash");
-
-		mFlashList.add("Auto");
-		mFlashList.add("Off");
-		mFlashList.add("On");
-		mFlashList.add("Red-Eye");
-		mFlashList.add("Torch");
-
-		mFlashListItems = new MenuItem[mFlashList.size()];
-
-		ListIterator<String> FlashItr = mFlashList.listIterator();
-		while (FlashItr.hasNext()) {
-			// add the element to the mDetectorMenu submenu
-			String element = FlashItr.next();
-			mFlashListItems[idx] = mFlashMenu.add(3, idx, Menu.NONE, element);
-			idx++;
-		}
-
+		
 		mResolutionMenu = menu.addSubMenu("Resolution");
 		mResolutionList = mOpenCvCameraView.getResolutionList();
 		mResolutionMenuItems = new MenuItem[mResolutionList.size()];
@@ -399,8 +406,15 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 							+ Integer.valueOf((int) element.height).toString());
 			idx++;
 		}
+		
+		//Set initial resolution when supported resolution is requested
+		mOpenCvCameraView.setResolution(mResolutionList.get(4));
+
+		
 		return true;
 	}
+	
+	
 
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Log.e(TAG, "called onOptionsItemSelected; selected item: " + item);
@@ -423,15 +437,26 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 			// Toast.makeText(this, caption, Toast.LENGTH_SHORT).show();
 
 			mOpenCvCameraView.setFocusMode(this, focusType);
-		} else if (item.getGroupId() == 3) {
-
-			int flashType = item.getItemId();
-			// String caption = "Flash Mode: "+ (String)item.getTitle();
-			// Toast.makeText(this, caption, Toast.LENGTH_SHORT).show();
-			mOpenCvCameraView.setFlashMode(this, flashType);
-		}
+		} 
+//		else if (item.getGroupId() == 3) {
+//
+//			int flashType = item.getItemId();
+//			// String caption = "Flash Mode: "+ (String)item.getTitle();
+//			// Toast.makeText(this, caption, Toast.LENGTH_SHORT).show();
+//			mOpenCvCameraView.setFlashMode(this, flashType);
+//		}
 
 		return true;
+	}
+	
+	
+	public String toggleMotor(String command){
+		String cmd;
+		if (command=="1")
+		{cmd="2";}else{
+			cmd="1";
+		}
+		return cmd;
 	}
 
 	Thread Motor = new Thread() {
@@ -458,37 +483,54 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 					if (!isInitiated){
 						if (btonoff == true) {
 							writeData("1");
+							Log.i(TAG,"Motor initialized");
 						}
 						isInitiated=true;
 					}
 			        // Record current value as past value
 					previousValue=currentValue;
 					// Keep motor running
-					sleep(500);
+					sleep(interval);
+					
                     // Read current and compare with past value
-					double diff = (currentValue - previousValue) / 1000;
-
-					Log.i("the total value is", String.valueOf(diff));
-
-					String command;
+//					double diff = (currentValue - previousValue) ;
+					
+//					if currentValue is not the maxima, means value is decreasing, we passed the peak
+					double diff=(maxima-currentValue);
+					String command="1";
+					
+					if (diff<10){
+						isFocused=false;
+					}else if (diff>10){
+						toggleMotor(command);
+						maxima=0;
+						interval=interval-50;
+						isFocused=false;
+					}else if(interval<=50){
+						command="3";
+						isFocused=true;
+					}
+					
+					
+					
 					
 
-					if (diff > 20) // Test if this is too sensitive, if so, add
-									// a threshold value to the difference
-					{
-						command = "1";
-						isFocused=false;
-						Log.i("Motor direction", "Left");
-					} else if (diff < -20) {
-						command = "2";
-						isFocused=false;
-						Log.i("Motor direction", "Right");
-					} else {
-						command = "3";
-						isFocused=true;
-						isInitiated=false;
-						Log.i("Motor direction", "Stop");
-					}
+//					if (diff > 20) // Test if this is too sensitive, if so, add
+//									// a threshold value to the difference
+//					{
+//						command = "1";
+//						isFocused=false;
+//						Log.i("Motor direction", "Left");
+//					} else if (diff < -20) {
+//						command = "2";
+//						isFocused=false;
+//						Log.i("Motor direction", "Right");
+//					} else {
+//						command = "3";
+//						isFocused=true;
+//						isInitiated=false;
+//						Log.i("Motor direction", "Stop");
+//					}
 
 					if (btonoff == true) {
 						writeData(command);
