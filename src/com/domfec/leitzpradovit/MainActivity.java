@@ -54,7 +54,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	private double previousValue;
 	private double currentValue;
 	private double maxima;
-	private int interval=500;
+	private long interval=500;
 	private Mat mGrayMat;
 	private boolean isFocused=true;
 	private boolean isInitiated=false;
@@ -499,6 +499,10 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 					double diff=(maxima-currentValue);
 					String command="1";
 					
+					Log.i("CurrentValue", String.valueOf(currentValue));
+					Log.i("Diff", String.valueOf(diff));
+					
+					
 					if (diff<10){
 						isFocused=false;
 					}else if (diff>10){
@@ -506,13 +510,17 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 						maxima=0;
 						interval=interval-50;
 						isFocused=false;
-					}else if(interval<=50){
+					}
+					
+					if(interval<=100){
 						command="3";
 						isFocused=true;
+						isInitiated=false;
+						interval=500;
 					}
 					
 					
-					
+					Log.i("Interval", String.valueOf(interval));
 					
 
 //					if (diff > 20) // Test if this is too sensitive, if so, add
